@@ -1,6 +1,7 @@
 from .acesso import Session, db
-from .tabelas import *
+from .model import *
 from sqlalchemy.exc import IntegrityError
+from datetime import *
 
 def criar_banco():
     Base.metadata.create_all(bind=db)
@@ -25,6 +26,12 @@ def criarPessoa(nome, cpf, cargo, matricula):
 def listarPessoas():
     db = Session()
     saida = db.query(Pessoa).filter().all()
+    db.close()
+    return saida
+
+def listarPessoasNome(nome):
+    db = Session()
+    saida = db.query(Pessoa).filter(Pessoa.nome.ilike(f"%{nome}%")).all()
     db.close()
     return saida
 
@@ -63,7 +70,8 @@ def criarVeiculo(cpf, nome, cor, placa):
 
 def cadastrarVisita(cpf, motivo):
     #implementar biblioteca para receber data e hora
-    data = "10/09/2025-13:54"
+    data = datetime.now()
+    print(data)
     db = Session()
     nova_visita = Visita(cpf=cpf, motivo=motivo, data=data)
     exito = False
@@ -77,3 +85,9 @@ def cadastrarVisita(cpf, motivo):
     finally:
         db.close()
     return exito
+
+def listarVisitas():
+    db = Session()
+    saida = db.query(Visita).filter().all()
+    db.close()
+    return saida

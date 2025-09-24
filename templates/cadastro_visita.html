@@ -19,8 +19,8 @@
 
         <form class="mb-3" action="">
 
-            <input class="mt-3 form-control" type="text" placeholder="nome ou cpf do visitante" name="identificacao">
-            <input class="mt-3 form-control" id="floatingInput" type="text" placeholder="motivo da visita">               
+            <input class="mt-3 form-control" type="text" placeholder="nome ou cpf do visitante" name="cpf">
+            <input class="mt-3 form-control" id="floatingInput" type="text" placeholder="motivo da visita" name="motivo">               
           
             <button class="btn btn-primary mt-4" style="width: 100%;">REGISTRAR</button>
 
@@ -32,15 +32,17 @@
 <div class="container">
   <table class="table table-striped">
     <tr>
-      <th>Nome</th>
       <th>CPF</th>
-      <th>motivo</th>
+      <th>Motivo</th>
+      <th>Data</th>
     </tr>
+    {% for visita in listaVisitas %}
     <tr>
-      <th>joao</th>
-      <th>111.111.111-11</th>
-      <th>reunião dos pais</th>
+      <th>{{visita["cpf"]}}</th>
+      <th>{{visita["motivo"]}}</th>
+      <th>{{visita["data"]}}</th>
     </tr>
+    {% endfor %}
   </table>
 </div>
   

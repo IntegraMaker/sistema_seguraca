@@ -17,9 +17,9 @@
 
     <h1 >Lista De Cadastrados</h1>
 
-    <form class="input-group input-group-lg mt-5" action="">
+    <form class="input-group input-group-lg mt-5" action="/pagina_inicial" method="get">
 
-      <input class="form-control" type="text" placeholder="Pesquisar">
+      <input class="form-control" type="text" placeholder="Pesquisar" name="pesquisar"> <!-- Precisa enviar requisição via get para o backend ao ser atualizado -->
       <button class="btn btn-primary mx-3">Pesquisar</button>
 
     </form>
@@ -31,11 +31,13 @@
       <th>CPF/MATRICULA</th>
       <th>VEICULO</th>
     </tr>
+    {% for pessoa in listaPessoas %}
     <tr>
-      <th>joao</th>
-      <th>111.111.111-11</th>
+      <th>{{pessoa["nome"]}}</th>
+      <th>{{pessoa["cpf"]}}</th>
       <th>COROLLA</th>
     </tr>
+    {% endfor %}
   </table>
 
 </div>

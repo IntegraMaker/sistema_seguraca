@@ -7,8 +7,8 @@ app = Flask(__name__)
 @app.route('/', methods=["GET", "POST"])
 def paginaLogin():
     if request.method == "POST":
-        id = request.values.get("id")
-        senha = request.values.get("senha")
+        id = request.form.get("id")
+        senha = request.form.get("senha")
         try:
             dados = buscarAdministrador(id)
 
@@ -23,38 +23,46 @@ def paginaLogin():
 
 @app.route('/pagina_inicial')
 def pagina_inicial():
+
+    pesquisa = request.values.get("pesquisar")
+    if pesquisa:
+        lista = listarPessoasNome(pesquisa)
+        return render_template("index.html", listaPessoas = lista)
+    
     lista = listarPessoas()
-    print(lista)
-    return render_template('index.html')
+    return render_template("index.html", listaPessoas = lista)
 
 
 @app.route('/cadastro_visita', methods=['post', 'get'])
 def cadastro_visita():
+    lista = listarVisitas()
     if request.method == "post":
-        cpf = request.values.get("cpf")
-        motivo = request.values.get("motivo")
+        cpf = request.form.get("cpf")
+        motivo = request.form.get("motivo")
         resultado = cadastrarVisita(cpf, motivo)
         print(resultado)
-        return pagina_inicial()
+        if resultado:
+            return render_template('cadastro_visita.html', listaVisitas = lista, exito = "Visita cadastrada com sucesso!")
+        return render_template('cadastro_visita.html', listaVisitas = lista, exito = "Cadastro mal sucedido!")
 
-    return render_template('cadastro_visita.html')
+    return render_template('cadastro_visita.html', listaVisitas = lista)
 
 
 @app.route('/cadastro_pessoa', methods=['post', 'get'])
 def cadastro_pessoa():
     if request.method == 'post':
-        nome = request.values.get("nome")
-        cpf = request.values.get("cpf")
-        cargo = request.values.get("cargo")
-        matricula = request.values.get("matricula")
-        temVeiculo = request.values.get("confirmacao")
+        nome = request.form.get("nome")
+        cpf = request.form.get("cpf")
+        cargo = request.form.get("cargo")
+        matricula = request.form.get("matricula")
+        temVeiculo = request.form.get("confirmacao")
         print(temVeiculo)
         resultado = criarPessoa(nome, cpf, cargo, matricula)
         print(resultado)
         if temVeiculo.lower() == "sim":
-            nome_veiculo = request.values.get("veiculo")
-            cor = request.values.get("cor")
-            placa = request.values.get("placa")
+            nome_veiculo = request.form.get("veiculo")
+            cor = request.form.get("cor")
+            placa = request.form.get("placa")
             resultado = criarVeiculo(cpf, nome_veiculo, cor, placa)
             print(resultado)
             # fazer ligação carro - pessoa no banco
@@ -64,10 +72,10 @@ def cadastro_pessoa():
 @app.route('/cadastro_veiculo', methods=['post', 'get'])
 def cadastro_veiculo():
     if request.method == "post":
-        dono = request.values.get("cpf")
-        nome = request.values.get("nome")
-        cor = request.values.get("cor")
-        placa = request.values.get("placa")
+        dono = request.form.get("cpf")
+        nome = request.form.get("nome")
+        cor = request.form.get("cor")
+        placa = request.form.get("placa")
         resultado = criarVeiculo(dono, nome, cor, placa)
         print(resultado)
         # necessario fazer ligação carro - pessoa no banco
