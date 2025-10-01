@@ -3,10 +3,13 @@ from .model import *
 from sqlalchemy.exc import IntegrityError
 from datetime import *
 
+
 def criar_banco():
     Base.metadata.create_all(bind=db)
 
+
 criar_banco()
+
 
 def criarPessoa(nome, cpf, cargo, matricula):
     db = Session()
@@ -18,10 +21,11 @@ def criarPessoa(nome, cpf, cargo, matricula):
         exito = True
     except IntegrityError:
         db.rollback()
-        print("Erro ao inserir!")
+        print("Error: Ao criar Pessoa!")
     finally:
         db.close()
     return exito
+
 
 def listarPessoas():
     db = Session()
@@ -29,17 +33,20 @@ def listarPessoas():
     db.close()
     return saida
 
+
 def listarPessoasNome(nome):
     db = Session()
     saida = db.query(Pessoa).filter(Pessoa.nome.ilike(f"%{nome}%")).all()
     db.close()
     return saida
 
+
 def buscaPessoa(cpf):
     db = Session()
     saida = db.query(Pessoa).filter(Pessoa.cpf == cpf).first()
     db.close()
     return saida
+
 
 def buscarAdministrador(id):
     db = Session()
@@ -53,9 +60,10 @@ def buscarAdministrador(id):
     }
     return saida
 
+
 def criarVeiculo(cpf, nome, cor, placa):
     db = Session()
-    novo_veiculo = Veiculo(dono=cpf, nome=nome, cpf=cpf, cor=cor, placa=placa)
+    novo_veiculo = Veiculo(dono=cpf, nome=nome, cor=cor, placa=placa)
     exito = False
     try:
         db.add(novo_veiculo)
@@ -63,13 +71,30 @@ def criarVeiculo(cpf, nome, cor, placa):
         exito = True
     except IntegrityError:
         db.rollback()
-        print("Erro ao inserir!")
+        print("Error: Ao criar Veiculo!")
+    finally:
+        db.close()
+    return exito
+
+def vincularVeiculo(cpf, placa):
+    db = Session()
+    exito = False
+    try:
+        db.query(Pessoa).filter(Pessoa.cpf == cpf).update({"veiculo": placa})
+        db.commit()
+        exito = True
+    except IntegrityError:
+        db.rollback()
+        print("Error: Ao vincular Veiculo!")
+    except Exception as e:
+        db.rollback()
+        print(f"Error: {e}")
     finally:
         db.close()
     return exito
 
 def cadastrarVisita(cpf, motivo):
-    #implementar biblioteca para receber data e hora
+    # implementar biblioteca para receber data e hora
     data = datetime.now()
     print(data)
     db = Session()
@@ -81,10 +106,11 @@ def cadastrarVisita(cpf, motivo):
         exito = True
     except IntegrityError:
         db.rollback()
-        print("Erro ao inserir visita!")
+        print("Error: Ao inserir visita!")
     finally:
         db.close()
     return exito
+
 
 def listarVisitas():
     db = Session()

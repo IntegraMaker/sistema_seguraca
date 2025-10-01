@@ -27,7 +27,7 @@ class Pessoa(Base):
     matricula = Column("matricula", String(30), nullable=True)
     veiculo = Column("veiculo", ForeignKey("veiculos.placa"), nullable=True)
 
-    def __init__(self, nome, cpf, cargo, matricula, veiculo):
+    def __init__(self, nome, cpf, cargo, matricula, veiculo=None):
         self.nome = nome
         self.cpf = cpf
         self.cargo = cargo
@@ -66,3 +66,9 @@ class Visita(Base):
 
     # def __repr__(self):
     #     return f"Visita(cpf={self.cpf!r}, motivo={self.motivo!r}, data={self.data})"
+
+#implementando a possibilidade do visitante ter mais de um veiculo cadastrado
+# class PessoaVeiculo(Base):
+#     __tablename__ = "pessoaVeiculo"
+
+#     id = Column("id", )

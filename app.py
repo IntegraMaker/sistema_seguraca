@@ -27,36 +27,42 @@ def pagina_inicial():
     pesquisa = request.values.get("pesquisar")
     if pesquisa:
         lista = listarPessoasNome(pesquisa)
-        return render_template("index.html", listaPessoas = lista)
-    
+        return render_template("index.html", listaPessoas=lista)
+
     lista = listarPessoas()
-    return render_template("index.html", listaPessoas = lista)
+    return render_template("index.html", listaPessoas=lista)
 
 
 @app.route('/cadastro_visita', methods=['post', 'get'])
 def cadastro_visita():
     lista = listarVisitas()
-    if request.method == "post":
+    if request.method == "GET":
+        cpf = request.values.get("cpf")
+        print(cpf)
+        if cpf:
+            return render_template('cadastro_visita.html', listaVisitas=lista, cpf=cpf)
+
+    if request.method == "POST":
         cpf = request.form.get("cpf")
         motivo = request.form.get("motivo")
         resultado = cadastrarVisita(cpf, motivo)
         print(resultado)
         if resultado:
-            return render_template('cadastro_visita.html', listaVisitas = lista, exito = "Visita cadastrada com sucesso!")
-        return render_template('cadastro_visita.html', listaVisitas = lista, exito = "Cadastro mal sucedido!")
+            return render_template('cadastro_visita.html', listaVisitas=lista, exito="Visita cadastrada com sucesso!")
+        return render_template('cadastro_visita.html', listaVisitas=lista, exito="Cadastro mal sucedido!")
 
-    return render_template('cadastro_visita.html', listaVisitas = lista)
+    return render_template('cadastro_visita.html', listaVisitas=lista)
 
 
 @app.route('/cadastro_pessoa', methods=['post', 'get'])
 def cadastro_pessoa():
-    if request.method == 'post':
+    if request.method == 'POST':
         nome = request.form.get("nome")
         cpf = request.form.get("cpf")
         cargo = request.form.get("cargo")
         matricula = request.form.get("matricula")
         temVeiculo = request.form.get("confirmacao")
-        print(temVeiculo)
+        print(temVeiculo.lower())
         resultado = criarPessoa(nome, cpf, cargo, matricula)
         print(resultado)
         if temVeiculo.lower() == "sim":
@@ -65,20 +71,22 @@ def cadastro_pessoa():
             placa = request.form.get("placa")
             resultado = criarVeiculo(cpf, nome_veiculo, cor, placa)
             print(resultado)
-            # fazer ligação carro - pessoa no banco
+            resultado = vincularVeiculo(cpf, placa)
+            print(resultado)
     return render_template('cadastro_pessoa.html')
 
 
 @app.route('/cadastro_veiculo', methods=['post', 'get'])
 def cadastro_veiculo():
-    if request.method == "post":
+    if request.method == "POST":
         dono = request.form.get("cpf")
         nome = request.form.get("nome")
         cor = request.form.get("cor")
         placa = request.form.get("placa")
         resultado = criarVeiculo(dono, nome, cor, placa)
         print(resultado)
-        # necessario fazer ligação carro - pessoa no banco
+        resultado = vincularVeiculo(dono, placa)
+        print(resultado)
     return render_template('cadastro_veiculo.html')
 
 

@@ -29,13 +29,16 @@
     <tr>
       <th>Nome</th>
       <th>CPF/MATRICULA</th>
-      <th>VEICULO</th>
+      <th>Registro</th>
     </tr>
     {% for pessoa in listaPessoas %}
     <tr>
       <th>{{pessoa["nome"]}}</th>
       <th>{{pessoa["cpf"]}}</th>
-      <th>COROLLA</th>
+      <th>
+        <a href="/cadastro_visita?cpf={{pessoa["cpf"]}}">...</a>
+    
+      </th>
     </tr>
     {% endfor %}
   </table>
