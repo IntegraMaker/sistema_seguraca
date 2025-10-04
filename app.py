@@ -71,8 +71,6 @@ def cadastro_pessoa():
             placa = request.form.get("placa")
             resultado = criarVeiculo(cpf, nome_veiculo, cor, placa)
             print(resultado)
-            resultado = vincularVeiculo(cpf, placa)
-            print(resultado)
     return render_template('cadastro_pessoa.html')
 
 
@@ -84,8 +82,6 @@ def cadastro_veiculo():
         cor = request.form.get("cor")
         placa = request.form.get("placa")
         resultado = criarVeiculo(dono, nome, cor, placa)
-        print(resultado)
-        resultado = vincularVeiculo(dono, placa)
         print(resultado)
     return render_template('cadastro_veiculo.html')
 

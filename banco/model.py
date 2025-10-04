@@ -25,14 +25,12 @@ class Pessoa(Base):
     cpf = Column("cpf", String(11), primary_key=True)
     cargo = Column("cargo", String(20), nullable=False)
     matricula = Column("matricula", String(30), nullable=True)
-    veiculo = Column("veiculo", ForeignKey("veiculos.placa"), nullable=True)
 
-    def __init__(self, nome, cpf, cargo, matricula, veiculo=None):
+    def __init__(self, nome, cpf, cargo, matricula):
         self.nome = nome
         self.cpf = cpf
         self.cargo = cargo
         self.matricula = matricula
-        self.veiculo = veiculo
 
     # def __repr__(self):
     #     return f"Pessoa(nome={self.nome!r}, cpf={self.cpf!r}, cargo={self.cargo!r}, veiculo={self.veiculo!r})"
@@ -68,7 +66,7 @@ class Visita(Base):
     #     return f"Visita(cpf={self.cpf!r}, motivo={self.motivo!r}, data={self.data})"
 
 #implementando a possibilidade do visitante ter mais de um veiculo cadastrado
-# class PessoaVeiculo(Base):
-#     __tablename__ = "pessoaVeiculo"
+class PessoaVeiculo(Base):
+    __tablename__ = "pessoaVeiculo"
 
-#     id = Column("id", )
+    id = Column("id", )

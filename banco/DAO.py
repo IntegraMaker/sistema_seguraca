@@ -76,22 +76,6 @@ def criarVeiculo(cpf, nome, cor, placa):
         db.close()
     return exito
 
-def vincularVeiculo(cpf, placa):
-    db = Session()
-    exito = False
-    try:
-        db.query(Pessoa).filter(Pessoa.cpf == cpf).update({"veiculo": placa})
-        db.commit()
-        exito = True
-    except IntegrityError:
-        db.rollback()
-        print("Error: Ao vincular Veiculo!")
-    except Exception as e:
-        db.rollback()
-        print(f"Error: {e}")
-    finally:
-        db.close()
-    return exito
 
 def cadastrarVisita(cpf, motivo):
     # implementar biblioteca para receber data e hora
