@@ -64,9 +64,3 @@ class Visita(Base):
 
     # def __repr__(self):
     #     return f"Visita(cpf={self.cpf!r}, motivo={self.motivo!r}, data={self.data})"
-
-#implementando a possibilidade do visitante ter mais de um veiculo cadastrado
-class PessoaVeiculo(Base):
-    __tablename__ = "pessoaVeiculo"
-
-    id = Column("id", )
