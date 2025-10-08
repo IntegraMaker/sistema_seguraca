@@ -97,7 +97,6 @@ def cadastrarVisita(cpf, motivo):
 
 def listarVisitas():
     db = Session()
-    # saida = db.query(Visita).filter().all()
-    saida = db.query(Visita).order_by(Visita.data.desc()).all()
+    saida = db.query(Visita).order_by(Visita.data.desc()).limit(50)
     db.close()
     return saida
