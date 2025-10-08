@@ -47,12 +47,13 @@ def pagina_inicial():
 @app.route('/cadastro_visita', methods=['post', 'get'])
 def cadastro_visita():
     if "id" in session:
-        lista = listarVisitas()
         if request.method == "GET":
+            lista = listarVisitas()
             cpf = request.values.get("cpf")
             print(cpf)
             if cpf:
                 return render_template('cadastro_visita.html', listaVisitas=lista, cpf=cpf)
+            return render_template('cadastro_visita.html', listaVisitas=lista)
 
         if request.method == "POST":
             cpf = request.form.get("cpf")
@@ -60,10 +61,10 @@ def cadastro_visita():
             resultado = cadastrarVisita(cpf, motivo)
             print(resultado)
             if resultado:
+                lista = listarVisitas()
                 return render_template('cadastro_visita.html', listaVisitas=lista, exito="Visita cadastrada com sucesso!")
             return render_template('cadastro_visita.html', listaVisitas=lista, exito="Cadastro mal sucedido!")
-
-        return render_template('cadastro_visita.html', listaVisitas=lista)
+        
     return render_template("login.html")
 
 

@@ -78,7 +78,6 @@ def criarVeiculo(cpf, nome, cor, placa):
 
 
 def cadastrarVisita(cpf, motivo):
-    # implementar biblioteca para receber data e hora
     data = datetime.now()
     print(data)
     db = Session()
@@ -98,6 +97,7 @@ def cadastrarVisita(cpf, motivo):
 
 def listarVisitas():
     db = Session()
-    saida = db.query(Visita).filter().all()
+    # saida = db.query(Visita).filter().all()
+    saida = db.query(Visita).order_by(Visita.data.desc()).all()
     db.close()
     return saida
