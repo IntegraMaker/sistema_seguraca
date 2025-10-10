@@ -95,8 +95,16 @@ def cadastrarVisita(cpf, motivo):
     return exito
 
 
-def listarVisitas():
+def listarVisitas(paginaAtual=1, visitasPagina=10):
+    offset = (paginaAtual - 1) * visitasPagina
     db = Session()
-    saida = db.query(Visita).order_by(Visita.data.desc()).limit(50)
+    visitas = db.query(Visita).order_by(Visita.data.desc()).offset(offset).limit(visitasPagina).all()
+    total = db.query(Visita).count()
     db.close()
-    return saida
+    return {
+        'visitas': visitas,
+        'total': total,
+        'paginaAtual': paginaAtual,
+        'visitaPagina': visitasPagina,
+        'paginas': (total + visitasPagina - 1) // visitasPagina
+    }
