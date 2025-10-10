@@ -11,7 +11,7 @@
 
 {% include "navBar.html" %}
 
-  <div class="d-flex justify-content-center mt-5" style="height: 100vh;">
+<div class="d-flex justify-content-center mt-5" style="height: 100vh;">
 
   <div class="container text-center">
 
@@ -24,29 +24,56 @@
 
     </form>
 
-      <div class="container mt-5">
-  <table class="table table-striped">
-    <tr>
-      <th>Nome</th>
-      <th>CPF/MATRICULA</th>
-      <th>Registro</th>
-    </tr>
-    {% for pessoa in listaPessoas %}
-    <tr>
-      <th>{{pessoa["nome"]}}</th>
-      <th>{{pessoa["cpf"]}}</th>
-      <th>
-        <a href="/cadastro_visita?cpf={{pessoa["cpf"]}}">...</a>
-    
-      </th>
-    </tr>
-    {% endfor %}
-  </table>
+    <div class="container mt-5">
+      <table class="table table-striped">
+        <tr>
+          <th>Nome</th>
+          <th>CPF/MATRICULA</th>
+          <th>Registro</th>
+        </tr>
+        {% for pessoa in listaPessoas["pessoas"] %}
+        <tr>
+          <th>{{pessoa["nome"]}}</th>
+          <th>{{pessoa["cpf"]}}</th>
+          <th>
+            <a href="/cadastro_visita?cpf={{pessoa["cpf"]}}">...</a>
+        
+          </th>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  
 
+    <nav aria-label="Páginas de visita" >
+      <ul class="pagination pagination-sm">
+        {% set lista = listaPessoas %}
+        {% set current_page = lista.paginaAtual %}
+        {% set total_pages = lista.paginas %}
+
+        <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
+          <a class="page-link" href="{% if current_page > 1 %}?page={{ current_page - 1 }}{% endif %}{% if pesquisa %}&pesquisar={{pesquisa}}{% endif %}" aria-label="Anterior">
+            <span aria-hidden="true">Anterior</span>
+          </a>
+        </li>
+
+        {% for page_num in range(1, total_pages + 1) %}
+          <li class="page-item {% if page_num == current_page %}active{% endif %}">
+            <a class="page-link" href="?page={{ page_num }}{% if pesquisa %}&pesquisar={{pesquisa}}{% endif %}" {% if page_num == current_page %}aria-current="page"{% endif %}>
+              {{ page_num }}
+            </a>
+          </li>
+        {% endfor %}
+
+        <li class="page-item {% if current_page == total_pages %}disabled{% endif %}">
+          <a class="page-link" href="{% if current_page < total_pages %}?page={{ current_page + 1 }}{% endif %}{% if pesquisa %}&pesquisar={{pesquisa}}{% endif %}" aria-label="Próxima">
+            <span aria-hidden="true">Próxima</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
 </div>
-  </div>
-
-  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
 </body>

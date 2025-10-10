@@ -27,18 +27,34 @@ def criarPessoa(nome, cpf, cargo, matricula):
     return exito
 
 
-def listarPessoas():
+def listarPessoas(paginaAtual=1, totalPagina=10):
+    offset = (paginaAtual - 1) * totalPagina
     db = Session()
-    saida = db.query(Pessoa).filter().all()
+    pessoas = db.query(Pessoa).offset(offset).limit(totalPagina).all()
+    total = db.query(Pessoa).count()
     db.close()
-    return saida
+    return {
+        'pessoas': pessoas,
+        'total': total,
+        'paginaAtual': paginaAtual,
+        'totalPagina': totalPagina,
+        'paginas': (total + totalPagina - 1) // totalPagina
+    }
 
 
-def listarPessoasNome(nome):
+def listarPessoasNome(nome, paginaAtual=1, totalPagina=10):
+    offset = (paginaAtual - 1) * totalPagina
     db = Session()
-    saida = db.query(Pessoa).filter(Pessoa.nome.ilike(f"%{nome}%")).all()
+    pessoas = db.query(Pessoa).filter(Pessoa.nome.ilike(f"%{nome}%")).offset(offset).limit(totalPagina).all()
+    total = db.query(Pessoa).filter(Pessoa.nome.ilike(f"%{nome}%")).count()
     db.close()
-    return saida
+    return {
+        'pessoas': pessoas,
+        'total': total,
+        'paginaAtual': paginaAtual,
+        'totalPagina': totalPagina,
+        'paginas': (total + totalPagina - 1) // totalPagina
+    }
 
 
 def buscaPessoa(cpf):

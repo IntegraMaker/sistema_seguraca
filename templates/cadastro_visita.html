@@ -47,36 +47,33 @@
 </div>
 
 <div class="container d-flex justify-content-center align-items-center">
-<nav aria-label="Páginas de visita" >
-  <ul class="pagination pagination-sm">
-    {% set lista = listaVisitas %}
-    {% set current_page = lista.paginaAtual %}
-    {% set total_pages = lista.paginas %}
+  <nav aria-label="Páginas de visita" >
+    <ul class="pagination pagination-sm">
+      {% set lista = listaPessoas %}
+      {% set current_page = lista.paginaAtual %}
+      {% set total_pages = lista.paginas %}
 
-    {# Link 'Anterior' #}
-    <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
-      <a class="page-link" href="{% if current_page > 1 %}?page={{ current_page - 1 }}{% endif %}" aria-label="Anterior">
-        <span aria-hidden="true">Anterior</span>
-      </a>
-    </li>
-
-    {# Links das páginas numeradas #}
-    {% for page_num in range(1, total_pages + 1) %}
-      <li class="page-item {% if page_num == current_page %}active{% endif %}">
-        <a class="page-link" href="?page={{ page_num }}" {% if page_num == current_page %}aria-current="page"{% endif %}>
-          {{ page_num }}
+      <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
+        <a class="page-link" href="{% if current_page > 1 %}?page={{ current_page - 1 }}{% endif %}" aria-label="Anterior">
+          <span aria-hidden="true">Anterior</span>
         </a>
       </li>
-    {% endfor %}
 
-    {# Link 'Próxima' #}
-    <li class="page-item {% if current_page == total_pages %}disabled{% endif %}">
-      <a class="page-link" href="{% if current_page < total_pages %}?page={{ current_page + 1 }}{% endif %}" aria-label="Próxima">
-        <span aria-hidden="true">Próxima</span>
-      </a>
-    </li>
-  </ul>
-</nav>
+      {% for page_num in range(1, total_pages + 1) %}
+        <li class="page-item {% if page_num == current_page %}active{% endif %}">
+          <a class="page-link" href="?page={{ page_num }}" {% if page_num == current_page %}aria-current="page"{% endif %}>
+            {{ page_num }}
+          </a>
+        </li>
+      {% endfor %}
+
+      <li class="page-item {% if current_page == total_pages %}disabled{% endif %}">
+        <a class="page-link" href="{% if current_page < total_pages %}?page={{ current_page + 1 }}{% endif %}" aria-label="Próxima">
+          <span aria-hidden="true">Próxima</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
 </div>
   
 

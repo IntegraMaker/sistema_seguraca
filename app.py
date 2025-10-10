@@ -25,8 +25,9 @@ def paginaLogin():
             return render_template("login.html", msg = "Erro ao fazer login!")
         
     if "id" in session:
-        lista = listarPessoas()
-        return render_template("index.html", listaPessoas = lista)
+        pagina = request.args.get("page", 1, type=int)
+        lista = listarPessoas(pagina)
+        return render_template("index.html", listaPessoas=lista, pesquisa=None)
     
     return render_template('login.html')
 
@@ -35,12 +36,13 @@ def paginaLogin():
 def pagina_inicial():
     if "id" in session:
         pesquisa = request.values.get("pesquisar")
+        pagina = request.args.get("page", 1, type=int)
         if pesquisa:
-            lista = listarPessoasNome(pesquisa)
-            return render_template("index.html", listaPessoas=lista)
+            lista = listarPessoasNome(pesquisa, pagina)
+            return render_template("index.html", listaPessoas=lista, pesquisa=pesquisa)
 
-        lista = listarPessoas()
-        return render_template("index.html", listaPessoas=lista)
+        lista = listarPessoas(pagina)
+        return render_template("index.html", listaPessoas=lista, pesquisa=None)
     return render_template("login.html")
 
 
