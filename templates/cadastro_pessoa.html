@@ -16,7 +16,7 @@
 
         <h1 class="fw-normal h1">Cadastrar Visitante</h1>
 
-        <form class="mb-3" action="/cadastro_pessoa" method="post">
+        <form class="mb-3" id="cadastroForm" method="post">
 
             <input class=" mt-3 form-control" type="text" placeholder="Nome" name="nome">
             <input class="mt-3 form-control" id="floatingInput" type="text" placeholder="CPF" name="cpf">
@@ -88,7 +88,7 @@
             <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
             </svg></button>
           
-            <button class="btn btn-primary mt-3" style="width: 100%;">Cadastrar</button>
+            <button type="button" id="btnCadastrar" class="btn btn-primary mt-3" style="width: 100%;">Cadastrar</button>
 
         </form>
 

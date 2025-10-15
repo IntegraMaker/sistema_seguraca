@@ -25,12 +25,14 @@ class Pessoa(Base):
     cpf = Column("cpf", String(11), primary_key=True)
     cargo = Column("cargo", String(20), nullable=False)
     matricula = Column("matricula", String(30), nullable=True)
+    foto = Column("foto", String(100), nullable=False)
 
-    def __init__(self, nome, cpf, cargo, matricula):
+    def __init__(self, nome, cpf, cargo, matricula, foto):
         self.nome = nome
         self.cpf = cpf
         self.cargo = cargo
         self.matricula = matricula
+        self.foto = foto
 
     # def __repr__(self):
     #     return f"Pessoa(nome={self.nome!r}, cpf={self.cpf!r}, cargo={self.cargo!r}, veiculo={self.veiculo!r})"

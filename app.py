@@ -1,5 +1,7 @@
 import os
+from datetime import *
 from flask import *
+from werkzeug.utils import secure_filename
 from banco.DAO import *
 from dotenv import load_dotenv
 
@@ -7,6 +9,16 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
+app.config['UPLOAD_FOLDER'] = 'img_pessoas'
+app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'png', 'jpeg'}
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+
+if not os.path.exists(f"static/{app.config['UPLOAD_FOLDER']}"):
+    os.makedirs(f"static/{app.config['UPLOAD_FOLDER']}")
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 @app.route('/', methods=["GET", "POST"])
 def paginaLogin():
@@ -80,15 +92,48 @@ def cadastro_pessoa():
             cargo = request.form.get("cargo")
             matricula = request.form.get("matricula")
             temVeiculo = request.form.get("confirmacao")
-            print(temVeiculo.lower())
-            resultado = criarPessoa(nome, cpf, cargo, matricula)
-            print(resultado)
-            if temVeiculo.lower() == "sim":
-                nome_veiculo = request.form.get("veiculo")
-                cor = request.form.get("cor")
-                placa = request.form.get("placa")
-                resultado = criarVeiculo(cpf, nome_veiculo, cor, placa)
-                print(resultado)
+            try:
+                if 'foto' not in request.files:
+                    return jsonify({'erro': 'Foto é obrigatória'}), 400
+                
+                file = request.files['foto']
+
+                if file.filename == '':
+                    return jsonify({'erro': 'Nenhuma foto enviada'}), 400
+                
+                if file and allowed_file(file.filename):
+                    # Gerar nome seguro para o arquivo
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+                    nome_original = secure_filename(file.filename)
+                    nome_seguro = f"{timestamp}_{nome_original}"
+                    caminho_completo = os.path.join(f"static/{app.config['UPLOAD_FOLDER']}", nome_seguro)
+                    
+                    # Salvar arquivo
+                    file.save(caminho_completo)
+                    print(f"✅ Foto salva: {caminho_completo}")
+
+                    # Cadastrar pessoa, e veiculo
+                    resultado = criarPessoa(nome, cpf, cargo, matricula, caminho_completo)
+                    print("Cadastro pessoa: ", resultado)
+                    if temVeiculo.lower() == "sim":
+                        nome_veiculo = request.form.get("veiculo")
+                        cor = request.form.get("cor")
+                        placa = request.form.get("placa")
+                        resultado = criarVeiculo(cpf, nome_veiculo, cor, placa)
+                        print("Cadastro veiculo: ", resultado)
+
+                    return jsonify({
+                        'mensagem': 'Pessoa cadastrada com sucesso!'
+                    }), 200
+                
+                return jsonify({'erro': 'Tipo de arquivo não permitido'}), 400
+
+            except Exception as e:
+                return jsonify({'erro': f'Erro interno do servidor: {str(e)}'}), 500
+
+            
+            
+            
         return render_template('cadastro_pessoa.html')
     return render_template("login.html")
 
