@@ -26,6 +26,7 @@ class Pessoa(Base):
     cargo = Column("cargo", String(20), nullable=False)
     matricula = Column("matricula", String(30), nullable=True)
     foto = Column("foto", String(100), nullable=False)
+    qrcode = Column("qrcode", String(100), nullable=True)
 
     def __init__(self, nome, cpf, cargo, matricula, foto):
         self.nome = nome

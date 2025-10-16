@@ -64,6 +64,21 @@ def buscaPessoa(cpf):
     return saida
 
 
+def cadastrarQRCodePessoa(cpf, caminhoQRCode):
+    db = Session()
+    exito = False
+    try:
+        db.query(Pessoa).filter(Pessoa.cpf == cpf).update({Pessoa.qrcode: caminhoQRCode})
+        db.commit()
+        exito = True
+    except IntegrityError:
+        db.rollback()
+        print("Error: Ao Registrar QRCode!")
+    finally:
+        db.close()
+    return exito
+
+
 def buscarAdministrador(id):
     db = Session()
     saida = db.query(Administrador).filter(Administrador.id == id).first()

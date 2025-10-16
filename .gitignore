@@ -209,4 +209,5 @@ __marimo__/
 
 # informções privadas
 static/img_pessoas
+static/qrcode_pessoas
 # banco/acesso.py

@@ -4,6 +4,8 @@ from flask import *
 from werkzeug.utils import secure_filename
 from banco.DAO import *
 from dotenv import load_dotenv
+import qrcode
+import hashlib
 
 load_dotenv()
 
@@ -15,6 +17,9 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 if not os.path.exists(f"static/{app.config['UPLOAD_FOLDER']}"):
     os.makedirs(f"static/{app.config['UPLOAD_FOLDER']}")
+
+if not os.path.exists(f"static/qrcode_pessoas"):
+    os.makedirs(f"static/qrcode_pessoas")
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -80,6 +85,50 @@ def cadastro_visita():
                 return render_template('cadastro_visita.html', listaVisitas=lista, exito="Visita cadastrada com sucesso!")
             return render_template('cadastro_visita.html', listaVisitas=lista, exito="Cadastro mal sucedido!")
         
+    return render_template("login.html")
+
+@app.route('/cadastro_qrcode', methods=['post', 'get'])
+def cadastro_qrcode():
+    if "id" in session:
+        if request.method == "POST":
+            cpf = request.form.get("cpf")
+            registro = buscaPessoa(cpf)
+
+            if registro:
+                try:
+                    with open(registro.foto, "rb") as img_file:
+                        image_bytes = img_file.read()
+                        image_hash = hashlib.sha256(image_bytes).hexdigest()
+                    
+
+                    print(image_hash)
+
+                    qr = qrcode.QRCode(
+                        version=1,
+                        error_correction=qrcode.constants.ERROR_CORRECT_L,
+                        box_size=20,
+                        border=2
+                    )
+                    qr.add_data(image_hash)
+                    qr.make(fit=True)
+                    imagem = qr.make_image(fill_color='black', back_color='white')
+
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+                    nome_seguro = f"{timestamp}_{registro.nome}.png"
+                    caminho_completo = os.path.join(f"static/qrcode_pessoas", nome_seguro)
+
+                    imagem.save(caminho_completo)
+                    resultado = cadastrarQRCodePessoa(cpf, caminho_completo)
+                    print(resultado)
+
+                    return render_template("cadastro_qrcode.html", mensagem="✅QRCode cadastrado com Sucesso!")
+                except:
+                    print("Error: Ao criar o QRCode!")
+
+            return render_template("cadastro_qrcode.html", mensagem="❌Erro ao cadastrar QRCode!")
+
+        return render_template("cadastro_qrcode.html", mensagem="")
+
     return render_template("login.html")
 
 
