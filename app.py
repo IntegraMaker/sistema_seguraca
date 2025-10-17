@@ -162,6 +162,37 @@ def cadastro_pessoa():
                     file.save(caminho_completo)
                     print(f"✅ Foto salva: {caminho_completo}")
 
+                    # cadastrar QRCode
+                    try:
+                        with open(caminho_completo, "rb") as img_file:
+                            image_bytes = img_file.read()
+                            image_hash = hashlib.sha256(image_bytes).hexdigest()
+                        
+
+                        print(image_hash)
+
+                        qr = qrcode.QRCode(
+                            version=1,
+                            error_correction=qrcode.constants.ERROR_CORRECT_L,
+                            box_size=20,
+                            border=2
+                        )
+                        qr.add_data(image_hash)
+                        qr.make(fit=True)
+                        imagem = qr.make_image(fill_color='black', back_color='white')
+
+                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+                        nome_seguro = f"{timestamp}_{nome}.png"
+                        caminho_QRCode = os.path.join(f"static/qrcode_pessoas", nome_seguro)
+
+                        imagem.save(caminho_QRCode)
+                        resultado = cadastrarQRCodePessoa(cpf, caminho_QRCode)
+                        print(resultado)
+                        
+                    except Exception as e:
+                        return jsonify({'erro': f'Erro interno do servidor: {str(e)}'}), 500
+
+
                     # Cadastrar pessoa, e veiculo
                     resultado = criarPessoa(nome, cpf, cargo, matricula, caminho_completo, curso)
                     print("Cadastro pessoa: ", resultado)
