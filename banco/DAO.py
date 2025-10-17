@@ -11,9 +11,9 @@ def criar_banco():
 criar_banco()
 
 
-def criarPessoa(nome, cpf, cargo, matricula, foto):
+def criarPessoa(nome, cpf, cargo, matricula, foto, curso=None):
     db = Session()
-    nova_pessoa = Pessoa(nome=nome, cpf=cpf, cargo=cargo, matricula=matricula, foto=foto)
+    nova_pessoa = Pessoa(nome=nome, cpf=cpf, cargo=cargo, matricula=matricula, foto=foto, curso=curso)
     exito = False
     try:
         db.add(nova_pessoa)

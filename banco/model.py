@@ -25,14 +25,16 @@ class Pessoa(Base):
     cpf = Column("cpf", String(11), primary_key=True)
     cargo = Column("cargo", String(20), nullable=False)
     matricula = Column("matricula", String(30), nullable=True)
+    curso = Column("curso", String(100), nullable=True)
     foto = Column("foto", String(100), nullable=False)
     qrcode = Column("qrcode", String(100), nullable=True)
 
-    def __init__(self, nome, cpf, cargo, matricula, foto):
+    def __init__(self, nome, cpf, cargo, matricula, foto, curso=None):
         self.nome = nome
         self.cpf = cpf
         self.cargo = cargo
         self.matricula = matricula
+        self.curso = curso
         self.foto = foto
 
     # def __repr__(self):

@@ -8,10 +8,11 @@ const fotoPreview = document.getElementById("fotoPreview");
 const Btn_apagar = document.getElementById("btn_apagar");
 const form_veiculo = document.getElementById("form_veiculo");
 const matricula_div = document.getElementById("matricula");
+const curso_div = document.getElementById("curso");
 const tipo = document.getElementById("tipo");
 const btnCadastrar = document.getElementById('btnCadastrar')
 
-let stream;
+let stream = null;
 let photoDataUrl = null;
   
 
@@ -20,13 +21,20 @@ let photoDataUrl = null;
     if(this.value === "Visitante"){
 
       matricula_div.style.display = "none";
+      curso_div.style.display = "none";
 
-    }else{
+    } else if (this.value === "Aluno") {
 
       matricula_div.style.display = "block";
+      curso_div.style.display = "block";
+
+    } else if (this.value === "Servidor") {
+
+      matricula_div.style.display = "block";
+      curso_div.style.display = "none";
 
     }
-  })
+  });
 
 
   function verificar() {

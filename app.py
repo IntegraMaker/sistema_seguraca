@@ -140,6 +140,7 @@ def cadastro_pessoa():
             cpf = request.form.get("cpf")
             cargo = request.form.get("cargo")
             matricula = request.form.get("matricula")
+            curso = request.form.get("curso")
             temVeiculo = request.form.get("confirmacao")
             try:
                 if 'foto' not in request.files:
@@ -162,7 +163,7 @@ def cadastro_pessoa():
                     print(f"✅ Foto salva: {caminho_completo}")
 
                     # Cadastrar pessoa, e veiculo
-                    resultado = criarPessoa(nome, cpf, cargo, matricula, caminho_completo)
+                    resultado = criarPessoa(nome, cpf, cargo, matricula, caminho_completo, curso)
                     print("Cadastro pessoa: ", resultado)
                     if temVeiculo.lower() == "sim":
                         nome_veiculo = request.form.get("veiculo")
