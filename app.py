@@ -1,6 +1,7 @@
 import os
 from datetime import *
 from flask import *
+from blueprints.pessoa_bp import pessoa_bp
 from werkzeug.utils import secure_filename
 from banco.DAO import *
 from dotenv import load_dotenv
@@ -14,6 +15,8 @@ app.secret_key = os.getenv("SECRET_KEY")
 app.config['UPLOAD_FOLDER'] = 'img_pessoas'
 app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'png', 'jpeg'}
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+
+app.register_blueprint(pessoa_bp)
 
 if not os.path.exists(f"static/{app.config['UPLOAD_FOLDER']}"):
     os.makedirs(f"static/{app.config['UPLOAD_FOLDER']}")
