@@ -136,7 +136,7 @@ btnCadastrar.addEventListener('click', async function() {
         console.log('Enviando formulário...');
         
         // Enviar para o servidor
-        const response = await fetch('/cadastro_pessoa', {
+        const response = await fetch('/cadastro/pessoa', {
             method: 'POST',
             body: formData
         });
