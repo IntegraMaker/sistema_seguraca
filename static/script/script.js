@@ -122,7 +122,7 @@ btnCadastrar.addEventListener('click', async function() {
         if (photoDataUrl) {
             const response = await fetch(photoDataUrl);
             const blob = await response.blob();
-            formData.append('foto', blob, 'foto_visitante.png');
+            formData.append('foto', blob, '${formData["nome"]}.png');
         } else {
             alert('Por favor, tire uma foto do visitante!');
             return;

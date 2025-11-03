@@ -9,7 +9,7 @@ cadastro_bp = Blueprint("cadastro", __name__, url_prefix="/cadastro")
 
 def allowed_file(filename):
     return '.' in filename and \
-        filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+        filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
 
 @cadastro_bp.route('/qrcode', methods=['post', 'get'])
 def cadastro_qrcode():
@@ -23,7 +23,6 @@ def cadastro_qrcode():
                     with open(registro.foto, "rb") as img_file:
                         image_bytes = img_file.read()
                         image_hash = hashlib.sha256(image_bytes).hexdigest()
-                    
 
                     print(image_hash)
 
@@ -80,7 +79,7 @@ def cadastro_pessoa():
                     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
                     nome_original = secure_filename(file.filename)
                     nome_seguro = f"{timestamp}_{nome_original}"
-                    caminho_completo = os.path.join(f"static/{app.config['UPLOAD_FOLDER']}", nome_seguro)
+                    caminho_completo = os.path.join(f"static/{current_app.config['UPLOAD_FOLDER']}", nome_seguro)
                     
                     # Salvar arquivo
                     file.save(caminho_completo)
