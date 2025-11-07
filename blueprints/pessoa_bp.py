@@ -8,6 +8,7 @@ def carteiraPessoa():
     if "id" in session:
         cpf = request.values.get("cpf")
         registro = buscaPessoa(cpf)
+        estadoQrcode = "Gere o QRCode!"
         if registro.qrcode:
             caminho = (str(registro.qrcode).split("\\"))
             qrCode = caminho[1].split("_")

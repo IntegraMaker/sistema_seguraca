@@ -85,6 +85,16 @@ def cadastro_pessoa():
                     file.save(caminho_completo)
                     print(f"✅ Foto salva: {caminho_completo}")
 
+                    # Cadastrar pessoa, e veiculo
+                    resultado = criarPessoa(nome, cpf, cargo, matricula, caminho_completo, curso)
+                    print("Cadastro pessoa: ", resultado)
+                    if temVeiculo.lower() == "sim":
+                        nome_veiculo = request.form.get("veiculo")
+                        cor = request.form.get("cor")
+                        placa = request.form.get("placa")
+                        resultado = criarVeiculo(cpf, nome_veiculo, cor, placa)
+                        print("Cadastro veiculo: ", resultado)
+
                     # cadastrar QRCode
                     try:
                         with open(caminho_completo, "rb") as img_file:
@@ -114,17 +124,6 @@ def cadastro_pessoa():
                         
                     except Exception as e:
                         return jsonify({'erro': f'Erro interno do servidor: {str(e)}'}), 500
-
-
-                    # Cadastrar pessoa, e veiculo
-                    resultado = criarPessoa(nome, cpf, cargo, matricula, caminho_completo, curso)
-                    print("Cadastro pessoa: ", resultado)
-                    if temVeiculo.lower() == "sim":
-                        nome_veiculo = request.form.get("veiculo")
-                        cor = request.form.get("cor")
-                        placa = request.form.get("placa")
-                        resultado = criarVeiculo(cpf, nome_veiculo, cor, placa)
-                        print("Cadastro veiculo: ", resultado)
 
                     return jsonify({
                         'mensagem': 'Pessoa cadastrada com sucesso!'
