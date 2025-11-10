@@ -37,17 +37,13 @@ let photoDataUrl = null;
   });
 
 
-  function verificar() {
+function verificar() {
   var selecionado = document.querySelector('input[id="radio_sim"]:checked');
 
   if (selecionado) {
-
     form_veiculo.style.display = "block";
-
   } else {
-
     form_veiculo.style.display = "none";
-
   }
 }
     
@@ -97,7 +93,15 @@ closeBtn.addEventListener("click", () => {
   }
 });
 
+Btn_apagar.addEventListener("click", () => {
+  photoDataUrl = null;
+  fotoPreview.src = "";
+  fotoPreview.style.display = "none";
+  Btn_apagar.style.display = "none";  
+});
+
 btnCadastrar.addEventListener('click', async function() {
+  const btnOriginal = this.innerHTML;
   try {
         // Coletar todos os dados do formulário
         const form = document.getElementById('cadastroForm');
@@ -122,14 +126,13 @@ btnCadastrar.addEventListener('click', async function() {
         if (photoDataUrl) {
             const response = await fetch(photoDataUrl);
             const blob = await response.blob();
-            formData.append('foto', blob, '${formData["nome"]}.png');
+            formData.append('foto', blob, '$foto_visitante.png');
         } else {
             alert('Por favor, tire uma foto do visitante!');
             return;
         }
         
         // Mostrar loading
-        const btnOriginal = this.innerHTML;
         this.innerHTML = 'Cadastrando...';
         this.disabled = true;
         
@@ -150,7 +153,10 @@ btnCadastrar.addEventListener('click', async function() {
             form.reset();
             photoDataUrl = null;
             fotoPreview.style.display = 'none';
-            btnApagar.style.display = 'none';
+            Btn_apagar.style.display = 'none';
+            matricula_div.style.display = "none";
+            curso_div.style.display = "none";
+            form_veiculo.style.display = "none";
         } else {
             alert('❌ Erro: ' + result.erro);
         }
