@@ -103,70 +103,78 @@ Btn_apagar.addEventListener("click", () => {
 btnCadastrar.addEventListener('click', async function() {
   const btnOriginal = this.innerHTML;
   try {
-        // Coletar todos os dados do formulário
-        const form = document.getElementById('cadastroForm');
-        const formData = new FormData();
-        
-        // Adicionar todos os campos do formulário
-        const formElements = form.elements;
-        for (let element of formElements) {
-            if (element.name && element.value) {
-                // Para radio buttons, pegar o valor selecionado
-                if (element.type === 'radio') {
-                    if (element.checked) {
-                        formData.append(element.name, element.value);
-                    }
-                } else {
-                    formData.append(element.name, element.value);
-                }
-            }
-        }
-        
-        // Adicionar a foto se existir
-        if (photoDataUrl) {
-            const response = await fetch(photoDataUrl);
-            const blob = await response.blob();
-            formData.append('foto', blob, '$foto_visitante.png');
-        } else {
-            alert('Por favor, tire uma foto do visitante!');
-            return;
-        }
-        
-        // Mostrar loading
-        this.innerHTML = 'Cadastrando...';
-        this.disabled = true;
-        
-        console.log('Enviando formulário...');
-        
-        // Enviar para o servidor
-        const response = await fetch('/cadastro/pessoa', {
-            method: 'POST',
-            body: formData
-        });
-        
-        const result = await response.json();
-        console.log('Resposta do servidor:', result);
-        
-        if (response.ok) {
-            alert('✅ Visitante cadastrado com sucesso!');
-            // Limpar formulário
-            form.reset();
-            photoDataUrl = null;
-            fotoPreview.style.display = 'none';
-            Btn_apagar.style.display = 'none';
-            matricula_div.style.display = "none";
-            curso_div.style.display = "none";
-            form_veiculo.style.display = "none";
-        } else {
-            alert('❌ Erro: ' + result.erro);
-        }
-        
-    } catch (error) {
-        console.error('Erro:', error);
-        alert('❌ Erro de conexão: ' + error.message);
-    } finally {
-        // Restaurar botão
-        this.innerHTML = btnOriginal;
-        this.disabled = false;
+    const nome = document.getElementById("nome").value;
+    const cpf = document.getElementById("cpf").value;
+
+    if(!nome || !cpf) {
+      alert('Por favor, preencha todos os campos.');
+      return;
     }
+
+    // Coletar todos os dados do formulário
+    const form = document.getElementById('cadastroForm');
+    const formData = new FormData();
+    
+    // Adicionar todos os campos do formulário
+    const formElements = form.elements;
+    for (let element of formElements) {
+      if (element.name && element.value) {
+          // Para radio buttons, pegar o valor selecionado
+          if (element.type === 'radio') {
+            if (element.checked) {
+                formData.append(element.name, element.value);
+            }
+          } else {
+              formData.append(element.name, element.value);
+          }
+      }
+    }
+    
+    // Adicionar a foto se existir
+    if (photoDataUrl) {
+      const response = await fetch(photoDataUrl);
+      const blob = await response.blob();
+      formData.append('foto', blob, '$foto_visitante.png');
+    } else {
+      alert('Por favor, tire uma foto do visitante!');
+      return;
+    }
+    
+    // Mostrar loading
+    this.innerHTML = 'Cadastrando...';
+    this.disabled = true;
+    
+    console.log('Enviando formulário...');
+    
+    // Enviar para o servidor
+    const response = await fetch('/cadastro/pessoa', {
+      method: 'POST',
+      body: formData
+    });
+    
+    const result = await response.json();
+    console.log('Resposta do servidor:', result);
+    
+    if (response.ok) {
+      alert('✅ Visitante cadastrado com sucesso!');
+      // Limpar formulário
+      form.reset();
+      photoDataUrl = null;
+      fotoPreview.style.display = 'none';
+      Btn_apagar.style.display = 'none';
+      matricula_div.style.display = "none";
+      curso_div.style.display = "none";
+      form_veiculo.style.display = "none";
+    } else {
+      alert('❌ Erro: ' + result.erro);
+    }
+        
+  } catch (error) {
+    console.error('Erro:', error);
+    alert('❌ Erro de conexão: ' + error.message);
+  } finally {
+    // Restaurar botão
+    this.innerHTML = btnOriginal;
+    this.disabled = false;
+  }
 });
