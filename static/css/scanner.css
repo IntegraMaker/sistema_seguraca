@@ -1,0 +1,40 @@
+body { font-family: sans-serif; text-align: center; margin: 0; padding: 20px;}
+        
+#reader {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #000;
+}
+/* Área de notificação (Toast) */
+#status-msg {
+    visibility: hidden;
+    min-width: 250px;
+    margin-left: -125px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 2px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 30px;
+    font-size: 17px;
+    box-shadow: 0px 4px 6px rgba(0,0,0,0.3);
+}
+/* Estilos para sucesso e erro */
+.msg-sucesso { background-color: #4CAF50 !important; } /* Verde */
+.msg-erro { background-color: #F44336 !important; }    /* Vermelho */
+.show {
+    visibility: visible !important;
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 4.5s;
+    animation: fadein 0.5s, fadeout 0.5s 4.5s;
+}
+/* Animações da notificação */
+@-webkit-keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+@keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+@-webkit-keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+@keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }

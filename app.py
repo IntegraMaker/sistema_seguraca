@@ -2,6 +2,7 @@ import os
 from flask import *
 from dotenv import load_dotenv
 from banco.DAO import *
+from werkzeug.security import check_password_hash
 from blueprints.pessoa_bp import pessoa_bp
 from blueprints.cadastro_bp import cadastro_bp
 from blueprints.registro_bp import registro_bp
@@ -32,19 +33,19 @@ def pagina_login():
         senha = request.form.get("senha")
         try:
             dados = buscarAdministrador(id)
-            if (id == dados["id"]) and (senha == dados["senha"]):
+            if dados and check_password_hash(dados["senha"], senha):
                 session["nome"] = dados["nome"]
                 session["id"] = dados["id"]
                 session["cargo"] = dados["cargo"]
-                return pagina_inicial()
+                return redirect(url_for('pagina_inicial'))
+            else:
+                return render_template("login.html", msg = "ID ou Senha incorretos!")
         except Exception as e:
-            print(f"An error occurred: {e} \n\n\n\n\n ")
+            print(f"An error occurred: {e}")
             return render_template("login.html", msg = "Erro ao fazer login!")
         
     if "id" in session:
-        pagina = request.args.get("page", 1, type=int)
-        lista = listarPessoas(pagina)
-        return render_template("index.html", listaPessoas=lista, pesquisa=None)
+        return redirect(url_for('pagina_inicial'))
     
     return render_template('login.html')
 
@@ -52,16 +53,27 @@ def pagina_login():
 @app.route('/home')
 def pagina_inicial():
     if "id" in session:
+        # Busca estatísticas para o Dashboard
+        estatisticas = {
+            "total_pessoas": contarTotalPessoas(),
+            "visitas_hoje": contarVisitasHoje()
+        }
+
         pesquisa = request.values.get("pesquisar")
         pagina = request.args.get("page", 1, type=int)
+        
         if pesquisa:
             lista = listarPessoasNome(pesquisa, pagina)
-            return render_template("index.html", listaPessoas=lista, pesquisa=pesquisa)
+            return render_template("index.html", listaPessoas=lista, pesquisa=pesquisa, estatisticas=estatisticas)
 
         lista = listarPessoas(pagina)
-        return render_template("index.html", listaPessoas=lista, pesquisa=None)
+        return render_template("index.html", listaPessoas=lista, pesquisa=None, estatisticas=estatisticas)
     return render_template("login.html")
 
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('pagina_login'))
 
 if __name__ == '__main__':
     # app.run(host= "0.0.0.0", debug = True , port = 80)

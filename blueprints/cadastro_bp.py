@@ -2,8 +2,10 @@ import os
 from flask import *
 from banco.DAO import *
 from werkzeug.utils import secure_filename
+import uuid
 import qrcode
-import hashlib
+import re
+from datetime import datetime, timedelta
 
 cadastro_bp = Blueprint("cadastro", __name__, url_prefix="/cadastro")
 
@@ -11,46 +13,54 @@ def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
 
-@cadastro_bp.route('/qrcode', methods=['post', 'get'])
-def cadastro_qrcode():
+def validar_cpf(cpf):
+    cpf = re.sub(r'[^0-9]', '', cpf)
+
+    if len(cpf) != 11 or cpf == cpf[0] * 11:
+        return False
+    
+    soma = sum(int(cpf[i]) * (10 - i) for i in range(9))
+    resto = (soma * 10) % 11
+    if resto == 10:
+        resto = 0
+    if resto != int(cpf[9]):
+        return False
+    
+    soma = sum(int(cpf[i]) * (11 - i) for i in range(10))
+    resto = (soma * 10) % 11
+    if resto == 10:
+        resto = 0
+    if resto != int(cpf[10]):
+        return False
+    
+    return True
+
+# ROTA ALTERADA DE /qrcode PARA /renovacao
+@cadastro_bp.route('/renovacao', methods=['post', 'get'])
+def renovacao_massa():
     if "id" in session:
+        msg = None
+        erro = None
+
         if request.method == "POST":
-            cpf = request.form.get("cpf")
-            registro = buscaPessoa(cpf)
+            cpfs_selecionados = request.form.getlist("cpfs")
+            
+            if cpfs_selecionados:
+                nova_validade = datetime.now() + timedelta(days=365)
+                resultado = renovarValidadeLista(cpfs_selecionados, nova_validade)
+                
+                if resultado:
+                    msg = f"Sucesso! {len(cpfs_selecionados)} carteiras foram renovadas por 1 ano."
+                else:
+                    erro = "Erro ao renovar as carteiras selecionadas."
+            else:
+                erro = "Nenhuma pessoa foi selecionada."
 
-            if registro:
-                try:
-                    with open(registro.foto, "rb") as img_file:
-                        image_bytes = img_file.read()
-                        image_hash = hashlib.sha256(image_bytes).hexdigest()
-
-                    print(image_hash)
-
-                    qr = qrcode.QRCode(
-                        version=1,
-                        error_correction=qrcode.constants.ERROR_CORRECT_L,
-                        box_size=20,
-                        border=2
-                    )
-                    qr.add_data(image_hash)
-                    qr.make(fit=True)
-                    imagem = qr.make_image(fill_color='black', back_color='white')
-
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-                    nome_seguro = f"{timestamp}_{registro.nome}.png"
-                    caminho_completo = os.path.join(f"static/qrcode_pessoas", nome_seguro)
-
-                    imagem.save(caminho_completo)
-                    resultado = cadastrarQRCodePessoa(cpf, caminho_completo)
-                    print(resultado)
-
-                    return render_template("cadastro/qrcode.html", mensagem="✅QRCode cadastrado com Sucesso!")
-                except:
-                    print("Error: Ao criar o QRCode!")
-
-            return render_template("cadastro/qrcode.html", mensagem="❌Erro ao cadastrar QRCode!")
-
-        return render_template("cadastro/qrcode.html", mensagem="")
+        pagina = request.args.get("page", 1, type=int)
+        lista = listarPessoas(pagina)
+        
+        # Mantemos o arquivo fisico como qrcode.html para não dar erro
+        return render_template("cadastro/qrcode.html", listaPessoas=lista, msg=msg, erro=erro)
 
     return render_template("login.html")
 
@@ -65,6 +75,13 @@ def cadastro_pessoa():
             matricula = request.form.get("matricula")
             curso = request.form.get("curso")
             temVeiculo = request.form.get("confirmacao")
+
+            cpf_limpo = re.sub(r'[^0-9]', '', cpf)
+            if not validar_cpf(cpf_limpo):
+                return jsonify({'erro': 'CPF inválido! Verifique os números digitados.'}), 400
+            
+            cpf = cpf_limpo
+
             try:
                 if 'foto' not in request.files:
                     return jsonify({'erro': 'Foto é obrigatória'}), 400
@@ -75,34 +92,30 @@ def cadastro_pessoa():
                     return jsonify({'erro': 'Nenhuma foto enviada'}), 400
                 
                 if file and allowed_file(file.filename):
-                    # Gerar nome seguro para o arquivo
                     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
                     nome_original = secure_filename(file.filename)
                     nome_seguro = f"{timestamp}_{nome_original}"
                     caminho_completo = os.path.join(f"static/{current_app.config['UPLOAD_FOLDER']}", nome_seguro)
                     
-                    # Salvar arquivo
                     file.save(caminho_completo)
                     print(f"✅ Foto salva: {caminho_completo}")
 
-                    # Cadastrar pessoa, e veiculo
                     resultado = criarPessoa(nome, cpf, cargo, matricula, caminho_completo, curso)
                     print("Cadastro pessoa: ", resultado)
-                    if temVeiculo.lower() == "sim":
+
+                    if temVeiculo and temVeiculo.lower() == "sim":
                         nome_veiculo = request.form.get("veiculo")
                         cor = request.form.get("cor")
                         placa = request.form.get("placa")
                         resultado = criarVeiculo(cpf, nome_veiculo, cor, placa)
                         print("Cadastro veiculo: ", resultado)
 
-                    # cadastrar QRCode
                     try:
-                        with open(caminho_completo, "rb") as img_file:
-                            image_bytes = img_file.read()
-                            image_hash = hashlib.sha256(image_bytes).hexdigest()
+                        token_acesso = str(uuid.uuid4())
                         
+                        validade = datetime.now() + timedelta(days=365)
 
-                        print(image_hash)
+                        print(f"Token Gerado: {token_acesso}, Validade até: {validade}")
 
                         qr = qrcode.QRCode(
                             version=1,
@@ -110,7 +123,7 @@ def cadastro_pessoa():
                             box_size=20,
                             border=2
                         )
-                        qr.add_data(image_hash)
+                        qr.add_data(token_acesso)
                         qr.make(fit=True)
                         imagem = qr.make_image(fill_color='black', back_color='white')
 
@@ -119,11 +132,12 @@ def cadastro_pessoa():
                         caminho_QRCode = os.path.join(f"static/qrcode_pessoas", nome_seguro)
 
                         imagem.save(caminho_QRCode)
-                        resultado = cadastrarQRCodePessoa(cpf, caminho_QRCode)
+                        
+                        resultado = cadastrarQRCodePessoa(cpf, caminho_QRCode, token_acesso, validade)
                         print(resultado)
                         
                     except Exception as e:
-                        return jsonify({'erro': f'Erro interno do servidor: {str(e)}'}), 500
+                        return jsonify({'erro': f'Erro ao gerar QR Code: {str(e)}'}), 500
 
                     return jsonify({
                         'mensagem': 'Pessoa cadastrada com sucesso!'

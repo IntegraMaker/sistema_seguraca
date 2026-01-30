@@ -1,4 +1,5 @@
 from sqlalchemy import Column, String, ForeignKey, DateTime
+from sqlalchemy.orm import relationship
 from .acesso import Base
 
 class Administrador(Base):
@@ -7,16 +8,7 @@ class Administrador(Base):
     nome = Column("nome", String(255), nullable=False)
     id = Column("id", String(20), primary_key=True)
     cargo = Column("cargo", String(40), nullable=False)
-    senha = Column("senha", String(18), nullable=False)
-
-    def __init__(self, nome, id, cargo, senha):
-        self.nome = nome
-        self.id = id
-        self.cargo = cargo
-        self.senha = senha
-
-    # def __repr__(self):
-    #     return self.nome, self.id, self.cargo, self.senha
+    senha = Column("senha", String(255), nullable=False)
 
 class Pessoa(Base):
     __tablename__ = "pessoas"
@@ -27,19 +19,13 @@ class Pessoa(Base):
     matricula = Column("matricula", String(30), nullable=True)
     curso = Column("curso", String(100), nullable=True)
     foto = Column("foto", String(100), nullable=False)
+    token_acesso = Column("token_acesso", String(36), nullable=True)
     qrcode = Column("qrcode", String(100), nullable=True)
+    validade_qrcode = Column("validade_qrcode", DateTime, nullable=True)
 
-    def __init__(self, nome, cpf, cargo, matricula, foto, curso=None):
-        self.nome = nome
-        self.cpf = cpf
-        self.cargo = cargo
-        self.matricula = matricula
-        self.curso = curso
-        self.foto = foto
+    veiculos = relationship("Veiculo", backref="proprietario")
+    visitas = relationship("Visita", backref="visitante")
 
-    # def __repr__(self):
-    #     return f"Pessoa(nome={self.nome!r}, cpf={self.cpf!r}, cargo={self.cargo!r}, veiculo={self.veiculo!r})"
-    
 class Veiculo(Base):
     __tablename__ = "veiculos"
 
@@ -48,24 +34,9 @@ class Veiculo(Base):
     cor = Column("cor", String(40), nullable=False)
     placa = Column("placa", String(7), primary_key=True)
 
-    def __init__(self, dono, nome, cor, placa):
-        self.dono = dono
-        self.nome = nome
-        self.cor = cor
-        self.placa = placa
-
-
 class Visita(Base):
     __tablename__ = "visitas"
 
     cpf = Column("cpf", String(11), ForeignKey("pessoas.cpf"))
     motivo = Column("motivo", String(500), nullable=False)
     data = Column("data", DateTime(), nullable=False, primary_key=True)
-
-    def __init__(self, cpf, motivo, data):
-        self.cpf = cpf
-        self.motivo = motivo
-        self.data = data
-
-    # def __repr__(self):
-    #     return f"Visita(cpf={self.cpf!r}, motivo={self.motivo!r}, data={self.data})"

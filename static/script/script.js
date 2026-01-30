@@ -10,36 +10,38 @@ const form_veiculo = document.getElementById("form_veiculo");
 const matricula_div = document.getElementById("matricula");
 const curso_div = document.getElementById("curso");
 const tipo = document.getElementById("tipo");
-const btnCadastrar = document.getElementById('btnCadastrar')
+const btnCadastrar = document.getElementById('btnCadastrar');
 
 let stream = null;
 let photoDataUrl = null;
-  
 
-  tipo.addEventListener("change", function(){
-    
+// Função auxiliar segura para exibir Toast ou Alert (caso o Toast falhe)
+function notificar(mensagem, tipo) {
+    if (typeof exibirToast === "function") {
+        exibirToast(mensagem, tipo);
+    } else {
+        // Fallback para alert caso o script de toast não tenha carregado
+        alert(mensagem);
+    }
+}
+
+// Lógica de mostrar campos baseada no Cargo
+tipo.addEventListener("change", function(){
     if(this.value === "Visitante"){
-
       matricula_div.style.display = "none";
       curso_div.style.display = "none";
-
     } else if (this.value === "Aluno") {
-
       matricula_div.style.display = "block";
       curso_div.style.display = "block";
-
     } else if (this.value === "Servidor") {
-
       matricula_div.style.display = "block";
       curso_div.style.display = "none";
-
     }
-  });
+});
 
-
+// Lógica do Veículo
 function verificar() {
   var selecionado = document.querySelector('input[id="radio_sim"]:checked');
-
   if (selecionado) {
     form_veiculo.style.display = "block";
   } else {
@@ -47,47 +49,33 @@ function verificar() {
   }
 }
     
-
-// 👉 Abrir câmera
+// === LÓGICA DA CÂMERA (Mantida Intacta) ===
 openBtn.addEventListener("click", async () => {
   modal.style.display = "flex";
-
   try {
     stream = await navigator.mediaDevices.getUserMedia({ video: true });
     video.srcObject = stream;
   } catch (err) {
-    alert("Erro ao acessar a câmera: " + err.message);
+    notificar("Erro ao acessar a câmera: " + err.message, "danger");
   }
 });
 
-// 👉 Tirar foto
 captureBtn.addEventListener("click", () => {
   const context = canvas.getContext("2d");
-  
-
-  // Ajusta canvas ao tamanho do vídeo
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
-
-  // Copia frame do vídeo para o canvas
   context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-  // Se quiser, converte em imagem base64
-    photoDataUrl = canvas.toDataURL("image/png", 0.8);
-    fotoPreview.src = photoDataUrl;
-    fotoPreview.style.display = "block";
+  photoDataUrl = canvas.toDataURL("image/png", 0.8);
+  fotoPreview.src = photoDataUrl;
+  fotoPreview.style.display = "block";
 
-    closeBtn.click();
-    Btn_apagar.style.display = "block"
-
-
+  closeBtn.click();
+  Btn_apagar.style.display = "block";
 });
 
-// 👉 Fechar câmera
 closeBtn.addEventListener("click", () => {
   modal.style.display = "none";
-
-  // Parar a câmera
   if (stream) {
     stream.getTracks().forEach(track => track.stop());
   }
@@ -100,53 +88,55 @@ Btn_apagar.addEventListener("click", () => {
   Btn_apagar.style.display = "none";  
 });
 
+// === LÓGICA DE CADASTRO (Atualizada com Toast) ===
 btnCadastrar.addEventListener('click', async function() {
   const btnOriginal = this.innerHTML;
+  
   try {
     const nome = document.getElementById("nome").value;
-    const cpf = document.getElementById("cpf").value;
+    const cpf = document.getElementById("floatingInput").value;
 
+    // Validação básica
     if(!nome || !cpf) {
-      alert('Por favor, preencha todos os campos.');
+      notificar('Por favor, preencha todos os campos obrigatórios.', 'warning');
       return;
     }
 
-    // Coletar todos os dados do formulário
+    // Validação da foto
+    if (!photoDataUrl) {
+      notificar('Por favor, tire uma foto do visitante!', 'warning');
+      return;
+    }
+
+    // Preparação visual do botão
+    this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Cadastrando...';
+    this.disabled = true;
+
     const form = document.getElementById('cadastroForm');
     const formData = new FormData();
     
-    // Adicionar todos os campos do formulário
+    // Coleta dados do formulário
     const formElements = form.elements;
     for (let element of formElements) {
       if (element.name && element.value) {
-          // Para radio buttons, pegar o valor selecionado
-          if (element.type === 'radio') {
-            if (element.checked) {
-                formData.append(element.name, element.value);
-            }
-          } else {
-              formData.append(element.name, element.value);
+        if (element.type === 'radio') {
+          if (element.checked) {
+            formData.append(element.name, element.value);
           }
+        } else {
+          formData.append(element.name, element.value);
+        }
       }
     }
     
-    // Adicionar a foto se existir
-    if (photoDataUrl) {
-      const response = await fetch(photoDataUrl);
-      const blob = await response.blob();
-      formData.append('foto', blob, '$foto_visitante.png');
-    } else {
-      alert('Por favor, tire uma foto do visitante!');
-      return;
-    }
-    
-    // Mostrar loading
-    this.innerHTML = 'Cadastrando...';
-    this.disabled = true;
+    // Processa a foto
+    const responseFoto = await fetch(photoDataUrl);
+    const blob = await responseFoto.blob();
+    formData.append('foto', blob, 'foto_visitante.png');
     
     console.log('Enviando formulário...');
     
-    // Enviar para o servidor
+    // Envio para o Backend
     const response = await fetch('/cadastro/pessoa', {
       method: 'POST',
       body: formData
@@ -156,8 +146,10 @@ btnCadastrar.addEventListener('click', async function() {
     console.log('Resposta do servidor:', result);
     
     if (response.ok) {
-      alert('✅ Visitante cadastrado com sucesso!');
-      // Limpar formulário
+      // SUCESSO
+      notificar('Visitante cadastrado com sucesso!', 'success');
+      
+      // Limpar formulário e resets visuais
       form.reset();
       photoDataUrl = null;
       fotoPreview.style.display = 'none';
@@ -165,15 +157,17 @@ btnCadastrar.addEventListener('click', async function() {
       matricula_div.style.display = "none";
       curso_div.style.display = "none";
       form_veiculo.style.display = "none";
+      
     } else {
-      alert('❌ Erro: ' + result.erro);
+      // ERRO DO BACKEND (ex: CPF duplicado)
+      notificar('Erro: ' + result.erro, 'danger');
     }
         
   } catch (error) {
     console.error('Erro:', error);
-    alert('❌ Erro de conexão: ' + error.message);
+    notificar('Erro de conexão: ' + error.message, 'danger');
   } finally {
-    // Restaurar botão
+    // Restaura o botão
     this.innerHTML = btnOriginal;
     this.disabled = false;
   }
