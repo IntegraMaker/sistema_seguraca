@@ -4,20 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>navbar</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
     
-    <nav class="navbar navbar-expand-lg bg-body-tertiary" class="position-fixed">
+<nav class="navbar navbar-expand-lg bg-body-tertiary" class="position-fixed">
   <div class="container-fluid">
 
-    <a class="navbar-brand" href="/pagina_inicial">Controle De Acesso</a>
+    <a class="navbar-brand" href="/home">Controle De Acesso</a>
+
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
+
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="/pagina_inicial">Início</a>
+          <a class="nav-link active" aria-current="page" href="/home">Início</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#">Relatórios </a>
@@ -27,9 +31,10 @@
             Cadastro
           </a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="/cadastro_pessoa">Visitante</a></li>
-            <li><a class="dropdown-item" href="#">Aluno e Servidor</a></li>
-            <li><a class="dropdown-item" href="/cadastro_veiculo">Veículo</a></li>
+            <li><a class="dropdown-item" href="/cadastro/pessoa">Visitante</a></li>
+            <li><a class="dropdown-item" href="/cadastro/veiculo">Veículo</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="/cadastro/renovacao">Renovação</a></li>
           </ul>
         </li>
         <li class="nav-item dropdown">
@@ -37,16 +42,44 @@
             Registrar
           </a>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="/cadastro_visita">Visita</a></li>
+            <li><a class="dropdown-item" href="/registro/visita">Visita</a></li>
+            <li><a class="dropdown-item" href="/registro/qrcode">QRCode</a></li>
           </ul>
         </li>
-        <li class="nav-item">
-          <a class="nav-link disabled" aria-disabled="true">Disabled</a>
-        </li>
       </ul>
+
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-link nav-link px-0 px-lg-2" id="bd-theme" type="button" aria-label="Alternar tema">
+            <i class="bi bi-circle-half fs-5"></i>
+        </button>
+        <a class="btn btn-outline-danger" href="/logout">Sair</a>
+      </div>
+
     </div>
   </div>
 </nav>
-</body>
 
+<div class="toast-container position-fixed top-0 end-0 p-3" id="toast-container" style="z-index: 1055;"></div>
+
+<script src="../static/script/theme.js"></script>
+<script src="../static/script/toast.js"></script>
+
+{% if msg %}
+<script>
+    // Espera o DOM carregar para garantir que o script toast.js já foi lido
+    document.addEventListener("DOMContentLoaded", function() {
+        exibirToast("{{ msg }}", "success");
+    });
+</script>
+{% endif %}
+
+{% if erro %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        exibirToast("{{ erro }}", "danger");
+    });
+</script>
+{% endif %}
+
+</body>
 </html>

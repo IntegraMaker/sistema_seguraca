@@ -1,78 +1,79 @@
+import os
 from flask import *
+from dotenv import load_dotenv
 from banco.DAO import *
+from werkzeug.security import check_password_hash
+from blueprints.pessoa_bp import pessoa_bp
+from blueprints.cadastro_bp import cadastro_bp
+from blueprints.registro_bp import registro_bp
+
+load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY")
+app.config['UPLOAD_FOLDER'] = 'img_pessoas'
+app.config['ALLOWED_EXTENSIONS'] = {'jpg', 'png', 'jpeg'}
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+
+app.register_blueprint(pessoa_bp)
+app.register_blueprint(cadastro_bp)
+app.register_blueprint(registro_bp)
+
+if not os.path.exists(f"static/{app.config['UPLOAD_FOLDER']}"):
+    os.makedirs(f"static/{app.config['UPLOAD_FOLDER']}")
+
+if not os.path.exists(f"static/qrcode_pessoas"):
+    os.makedirs(f"static/qrcode_pessoas")
 
 
 @app.route('/', methods=["GET", "POST"])
-def paginaLogin():
+def pagina_login():
     if request.method == "POST":
-        id = request.values.get("id")
-        senha = request.values.get("senha")
+        id = str(request.form.get("id"))
+        senha = request.form.get("senha")
         try:
             dados = buscarAdministrador(id)
-
-            if (str(id) == dados["id"]) and (senha == dados["senha"]):
-                return pagina_inicial()
+            if dados and check_password_hash(dados["senha"], senha):
+                session["nome"] = dados["nome"]
+                session["id"] = dados["id"]
+                session["cargo"] = dados["cargo"]
+                return redirect(url_for('pagina_inicial'))
+            else:
+                return render_template("login.html", msg = "ID ou Senha incorretos!")
         except Exception as e:
-            print(f"An error occurred: {e} \n\n\n\n\n ")
-
-            # return paginaLogin()
+            print(f"An error occurred: {e}")
+            return render_template("login.html", msg = "Erro ao fazer login!")
+        
+    if "id" in session:
+        return redirect(url_for('pagina_inicial'))
+    
     return render_template('login.html')
 
 
-@app.route('/pagina_inicial')
+@app.route('/home')
 def pagina_inicial():
-    lista = listarPessoas()
-    print(lista)
-    return render_template('index.html')
+    if "id" in session:
+        # Busca estatísticas para o Dashboard
+        estatisticas = {
+            "total_pessoas": contarTotalPessoas(),
+            "visitas_hoje": contarVisitasHoje()
+        }
 
+        pesquisa = request.values.get("pesquisar")
+        pagina = request.args.get("page", 1, type=int)
+        
+        if pesquisa:
+            lista = listarPessoasNome(pesquisa, pagina)
+            return render_template("index.html", listaPessoas=lista, pesquisa=pesquisa, estatisticas=estatisticas)
 
-@app.route('/cadastro_visita', methods=['post', 'get'])
-def cadastro_visita():
-    if request.method == "post":
-        cpf = request.values.get("cpf")
-        motivo = request.values.get("motivo")
-        resultado = cadastrarVisita(cpf, motivo)
-        print(resultado)
-        return pagina_inicial()
+        lista = listarPessoas(pagina)
+        return render_template("index.html", listaPessoas=lista, pesquisa=None, estatisticas=estatisticas)
+    return render_template("login.html")
 
-    return render_template('cadastro_visita.html')
-
-
-@app.route('/cadastro_pessoa', methods=['post', 'get'])
-def cadastro_pessoa():
-    if request.method == 'post':
-        nome = request.values.get("nome")
-        cpf = request.values.get("cpf")
-        cargo = request.values.get("cargo")
-        matricula = request.values.get("matricula")
-        temVeiculo = request.values.get("confirmacao")
-        print(temVeiculo)
-        resultado = criarPessoa(nome, cpf, cargo, matricula)
-        print(resultado)
-        if temVeiculo.lower() == "sim":
-            nome_veiculo = request.values.get("veiculo")
-            cor = request.values.get("cor")
-            placa = request.values.get("placa")
-            resultado = criarVeiculo(cpf, nome_veiculo, cor, placa)
-            print(resultado)
-            # fazer ligação carro - pessoa no banco
-    return render_template('cadastro_pessoa.html')
-
-
-@app.route('/cadastro_veiculo', methods=['post', 'get'])
-def cadastro_veiculo():
-    if request.method == "post":
-        dono = request.values.get("cpf")
-        nome = request.values.get("nome")
-        cor = request.values.get("cor")
-        placa = request.values.get("placa")
-        resultado = criarVeiculo(dono, nome, cor, placa)
-        print(resultado)
-        # necessario fazer ligação carro - pessoa no banco
-    return render_template('cadastro_veiculo.html')
-
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('pagina_login'))
 
 if __name__ == '__main__':
     # app.run(host= "0.0.0.0", debug = True , port = 80)
